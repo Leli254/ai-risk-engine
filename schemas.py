@@ -47,7 +47,7 @@ class ApplicationRequest(BaseModel):
 
 class ExtractedSignals(BaseModel):
     """
-    The 'Data Firewall' model. 
+    The 'Data Firewall' model.
     Output of Pass 1 (Extraction). Sanitizes raw text into structured signals.
     """
     model_config = ConfigDict(

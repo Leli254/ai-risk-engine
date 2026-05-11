@@ -139,7 +139,7 @@ curl -X POST http://localhost:8000/assess \
   -H "Content-Type: application/json" \
   -d '{
     "application_id": "APP-001",
-    "text": "I earn 85,000 KES monthly. Need 500,000 KES loan for business expansion."
+    "text": "I earn 85,000 USD monthly. Need 500,000 USD loan for business expansion."
   }'
 ```
 

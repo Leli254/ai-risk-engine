@@ -78,7 +78,7 @@ Built with Pydantic v2 using:
 ### 1. Clone the Repository
 
 ```bash
-git clone git@github.com:YOUR_USERNAME/ai-risk-engine.git
+git clone git@github.com:Leli254/ai-risk-engine.git
 cd ai-risk-engine
 ```
 

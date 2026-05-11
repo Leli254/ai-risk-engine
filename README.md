@@ -98,6 +98,8 @@ Create a `.env` file:
 OPENAI_API_KEY=your_openai_key
 STRIPE_SECRET_KEY=your_stripe_key
 STRIPE_WEBHOOK_SECRET=your_webhook_secret
+PORT=8000
+LOG_LEVEL=info
 ```
 
 > Do not commit your `.env` file to version control.

@@ -143,41 +143,37 @@ async def stripe_webhook(request: Request):
     sig_header = request.headers.get("stripe-signature")
 
     try:
+        # Cryptographically verify the event came from Stripe
         event = verify_webhook_signature(payload, sig_header)
 
-        # --- SENIOR DEBUG BLOCK ---
-        # This will show you exactly what is inside the StripeObject
-        log.debug("inspecting_stripe_object",
-                  type=type(event),
-                  attributes=dir(event))
-
-        # Convert to a real dict so you can use .get() again
+        # We convert to a dict once for clean attribute access
         event_dict = event.to_dict()
-        # ---------------------------
-
         event_type = event_dict.get("type")
+
         log.info("webhook_received", type=event_type)
 
         if event_type == "payment_intent.succeeded":
-            # Direct inspection of the nested object
-            obj = event_dict.get("data", {}).get("object", {})
-            metadata = obj.get("metadata", {})
-
-            # Check your terminal for this!
-            log.info("inspecting_metadata", metadata=metadata)
+            # Safely navigate the nested event structure
+            payment_intent = event_dict.get("data", {}).get("object", {})
+            metadata = payment_intent.get("metadata", {})
 
             app_id = metadata.get("application_id")
+
             if app_id:
                 log.info("payment_confirmed", application_id=app_id)
+                # This is the "Bridge": Moving state from Stripe to our internal Store
                 store.set_payment_status(app_id, "paid")
             else:
-                log.error("application_id_missing_in_metadata")
+                log.error("payment_succeeded_missing_metadata",
+                          payment_intent_id=payment_intent.get("id"))
 
         return {"status": "success"}
 
     except Exception as e:
-        log.error("webhook_crash", error=str(e), error_type=type(e).__name__)
-        raise HTTPException(status_code=500, detail="Internal Server Error")
+        # We log the error type and message for debugging, 
+        # but hide details from the client
+        log.error("webhook_verification_failed", error=str(e))
+        raise HTTPException(status_code=400, detail="Webhook Error")
 
 @app.post("/assess", response_model=RiskScore, tags=["AI Assessment"])
 async def assess_application(request: ApplicationRequest):

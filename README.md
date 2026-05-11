@@ -68,6 +68,7 @@ Built with Pydantic v2 using:
 | AI | OpenAI GPT-4o-mini (Structured Outputs) |
 | Payments | Stripe API |
 | Validation | Pydantic v2 |
+| Testing | pytest, pytest-mock |
 | Environment | Linux Mint / Ubuntu |
 
 ---
@@ -138,6 +139,50 @@ curl -X POST http://localhost:8000/assess \
     "application_id": "APP-001",
     "text": "I earn 85,000 KES monthly. Need 500,000 KES loan for business expansion."
   }'
+```
+
+---
+
+## 🧪 Automated Testing
+
+The project includes a comprehensive test suite using `pytest` and `pytest-mock`.
+
+The tests are designed to be **offline-first**, mocking all external API calls to OpenAI and Stripe so application logic can be validated without:
+- Incurring API costs
+- Requiring network access
+- Depending on third-party service availability
+
+### Key Test Coverage
+
+#### Pipeline Logic
+Verifies the complete two-pass extraction and scoring pipeline using structured mocks.
+
+#### Resiliency
+Validates that the `@retry` (`tenacity`) logic correctly handles transient API failures such as:
+- `429 Quota Exceeded`
+- Temporary connection failures
+- Timeout scenarios
+
+#### Webhook Processing
+Simulates cryptographically signed Stripe webhook events to ensure:
+- Signature verification succeeds
+- Internal payment state updates correctly
+- Duplicate event handling remains idempotent
+
+### Running Tests
+
+Ensure your virtual environment is activated, then run:
+
+```bash
+# Run all tests with verbose output
+pytest -v
+```
+
+To run a focused subset of tests:
+
+```bash
+# Run only pipeline tests
+pytest tests/test_pipeline.py -v
 ```
 
 ---
